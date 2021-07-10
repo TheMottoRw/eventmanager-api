@@ -19,6 +19,9 @@ class Events extends Model
         'event_kikoff',
         'event_close',
         'reservation_allowed',
+        'address',
+        'status',
+        'updated_at',
         'created_at',
     ];
 }

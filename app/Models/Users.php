@@ -11,7 +11,9 @@ class Users extends Model{
         'phone',
         'user_type',
         'password',
+        'updated_at',
         'created_at'
     ];
+    protected $hidden = ['password'];
 }
 ?>

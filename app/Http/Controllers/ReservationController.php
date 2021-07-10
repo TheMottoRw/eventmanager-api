@@ -11,49 +11,77 @@ use Illuminate\Support\Facades\Crypt;
 class ReservationController extends Controller
 {
     //
-    private function create(Request $request){
-        $user = new Reservation();
+    public function create(Request $request)
+    {
+        $reservation = new Reservation();
 
-        if($this->checkAvailableReservation($request->event_id)>0){
-        $user->save([
-            'business_id'=>$request->business_id,
-            'event_id'=>$request->event_id,
-            'user_id'=>$request->user_id,
-            'user_type'=>$request->user_type,
-        ]);
-        if($user){
-            return response()->json(['status'=>'ok','message'=>"Reservation created successfully"]);
-        }
-        return response()->json(['status'=>'failed','message'=>'Something went wrong,user not created']);
-        }else{
-            return response()->json(['status'=>'failed','message'=>"No seat available"]);
+        if ($this->checkAvailableReservation($request->event_id) > 0) {
+            if ($this->isUserAllowed($request->event_id, $request->user_id)) {
+                $reservation->business_id = $request->business_id;
+                $reservation->event_id = $request->event_id;
+                $reservation->user_id = $request->user_id;
+                $reservation->save();
+                if ($reservation) {
+                    return response()->json(['status' => 'ok', 'message' => "Reservation created successfully"]);
+                } else {
+                    return response()->json(['status' => 'failed', 'message' => 'Something went wrong,user not created']);
+                }
+            } else {
+                return response()->json(['status' => 'failed', 'message' => "You have already reserved a seat"]);
+            }
+        } else {
+            return response()->json(['status' => 'failed', 'message' => "No seat available"]);
         }
     }
-    private function load($id=0){
-        if($id==0)
-            return response()->json(['status'=>'ok','data'=>Reservation::all()]);
+
+    public function load(Request $request,$id = 0){
+        $data = Reservation::join('businesses',"businesses.id","=","reservation.business_id")
+                            ->join("evenements","evenements.id",'=',"reservation.event_id")
+                            ->join("users","users.id",'=',"reservation.user_id")
+                            ->selectRaw("reservation.*,users.name as reserver_name,users.email as reserver_email,users.phone as reserver_phone,evenements.event_name,evenements.event_type,evenements.event_kikoff,evenements.event_close,evenements.brief_description,evenements.images,businesses.name as business_name,businesses.business_type,'' as available_seat");
+
+        if($request->business_id){
+            return response()->json(['status'=>'ok','data'=>$data->where('reservation.business_id',$request->business_id)->get()]);
+        }
+        if($request->user_id){
+            return response()->json(['status'=>'ok','data'=>$data->where('reservation.user_id',$request->user_id)->get()]);
+        }
+        if($request->event_id){
+            return response()->json(['status'=>'ok','data'=>$data->where('reservation.event_id',$request->event_id)->get()]);
+        }
+        if ($id == 0)
+            return response()->json(['status' => 'ok', 'data' => $data->get()]);
         else
-            return response()->json(['status'=>'ok','data'=>[Reservation::find($id)]]);
+            return response()->json(['status' => 'ok', 'data' => [Reservation::find($id)]]);
 
     }
 
-    private function update(Request $request,$id){
+    public function update(Request $request, $id)
+    {
         $users = Reservation::find($id);
         $users->business_id = $request->business_id;
         $users->event_id = $request->event_id;
         $users->user_id = $request->user_id;
         $users->save();
-        if($id==0)
-            return response()->json(['status'=>'ok','data'=>$users->findAll()]);
+        if ($id == 0)
+            return response()->json(['status' => 'ok', 'data' => $users->findAll()]);
         else
-            return response()->json(['status'=>'ok','data'=>[$users->find($id)]]);
+            return response()->json(['status' => 'ok', 'data' => [$users->find($id)]]);
 
     }
-    private function checkAvailableReservation($eventid){
-        $reservation_allowed = Events::find($eventid)->reservation_allowed;
-        $reserved = Reservation::where("event_id",$eventid)->get();
-        return $reservation_allowed - $reserved;
 
+    public function checkAvailableReservation($eventid)
+    {
+        $reservation_allowed = Events::find($eventid)->reservation_allowed;
+        $reserved = Reservation::where("event_id", $eventid)->get();
+        return $reservation_allowed - count($reserved);
+    }
+
+    public function isUserAllowed($eventid, $userId)
+    {
+        $reservation_allowed = Events::find($eventid)->reservation_allowed;
+        $reserved = Reservation::where("event_id", $eventid)->where("user_id", $userId)->get();
+        return count($reserved) == 0 ? true : false;
     }
 
 }

@@ -19,4 +19,7 @@ class Businesses extends Model
         'password',
         'created_at',
     ];
+    protected $hidden = [
+        'password',
+    ];
 }
