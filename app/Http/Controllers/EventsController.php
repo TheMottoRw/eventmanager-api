@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Businesses;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
@@ -69,12 +70,17 @@ class EventsController extends Controller
         $data = DB::table('evenements')
             ->leftJoin("reservation", "reservation.event_id", "=", "evenements.id")
             ->join("businesses", "evenements.business_id", "=", "businesses.id")
-//            ->whereRaw('evenements.event_kikoff>="' . date("Y-m-d H:i:s") . '" AND evenements.status="approved"')
+            ->whereRaw('evenements.event_kikoff>="' . date("Y-m-d H:i:s") . '" AND evenements.status="approved"')
             ->selectRaw("evenements.*,(evenements.reservation_allowed - count(reservation.id)) as available_seat,count(reservation.id) as reserved_seat,businesses.name as business_name,businesses.business_type")
             ->orderBy("evenements.event_kikoff",'desc')
             ->groupBy("evenements.id")
             ->get();
-        return response()->json(['status' => 'ok', 'data' => $data]);
+        $resp = ['status' => 'ok','type' => 'events', 'data' => $data];
+        if(count($data) == 0){
+            $resp['type'] = 'businesses';
+            $resp['data'] = Businesses::all();
+        }
+        return response()->json($resp);
     }
 
     public function byStatus(Request $request,$status)
