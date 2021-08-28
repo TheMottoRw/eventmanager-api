@@ -52,6 +52,7 @@ class EventsController extends Controller
                 ->leftJoin("reservation", "reservation.event_id", "=", "evenements.id")
                 ->whereRaw('evenements.business_id', $request->business_id)
                 ->selectRaw("evenements.*,(evenements.reservation_allowed - count(reservation.id)) as available_seat,count(reservation.id) as reserved_seat,businesses.name as business_name,businesses.business_type")
+                ->orderBy("evenements.event_kikoff",'desc')
                 ->groupBy("evenements.id")
                 ->get();
             return response()->json(['status' => 'ok', 'data' => $data]);
@@ -67,6 +68,7 @@ class EventsController extends Controller
 
     public function active()
     {
+
         $data = DB::table('evenements')
             ->leftJoin("reservation", "reservation.event_id", "=", "evenements.id")
             ->join("businesses", "evenements.business_id", "=", "businesses.id")
@@ -102,6 +104,15 @@ class EventsController extends Controller
         $users->status = $request->status;
         $users->save();
         return response()->json(['status' => 'ok', 'message' => 'Event has been '.$request->status.' successfully']);
+    }
+
+    public function reschedule(Request $request, $id)
+    {
+        $users = Events::find($id);
+        $users->event_kikoff = $request->event_kikoff;
+        $users->event_close = $request->event_close;
+        $users->save();
+        return response()->json(['status' => 'ok', 'message' => 'Event has been rescheduled successfully']);
     }
     public function update(Request $request, $id)
     {

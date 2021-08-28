@@ -41,9 +41,19 @@ class UsersController extends Controller
         $user->phone = $request->phone;
         $user->user_type = 'Standard';
         $user->password = Hash::make($request->password);
-        $user->save();
-        if($user){
-            return response()->json(['status'=>'ok','message'=>"User created successfully",'data'=>DB::table('users')->orderBy('created_at','desc')->first()]);
+        //sending notification email
+        $email = $request->email;
+        $name = $request->name;
+        $mail = new MailController();
+        $subject = "Event management account creation notification";
+        $message = "Hello ".$name.",<br>Thank you for creating account on our platform,you will use it to signin,reserve and enjoy all the events posted on our platform.";
+        $resp = $mail->sendMail($name,$email,$subject,$message);
+
+        if($resp == "ok"){
+            $user->save();
+            if($user){
+                return response()->json(['status'=>'ok','message'=>"User created successfully",'data'=>DB::table('users')->orderBy('created_at','desc')->first()]);
+            }
         }
         return response()->json(['status'=>'failed','message'=>'Something went wrong,user not created']);
     }
@@ -89,5 +99,16 @@ class UsersController extends Controller
             }
         }
         return response()->json(['status'=>'failed','message'=>'Wrong phone number or password','data'=>[]]);
+    }
+    public function testMail(Request $request){
+        $email = $request->email;
+        $name = $request->name;
+        $mail = new MailController();
+        $subject = "Event management account creation notification";
+        $message = "Thank you for creating account on our platform,you will use it to signin enjoy all the events on our platform.<br>";
+//        echo $message;
+        $resp = $mail->sendMail($name,$email,$subject,$message);
+        echo $resp;
+//        $mail->sendMail("Manzi Roger",$email,$subject,$message);
     }
 }

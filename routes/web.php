@@ -4,6 +4,9 @@ use App\Http\Controllers\BusinessesController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\FollowsController;
+use App\Http\Controllers\ReviewsController;
+use App\Http\Controllers\SavedforlaterController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +49,7 @@ Route::group(['prefix'=>'events'],function(){
     Route::post("/status/{id}",[EventsController::class,'changeStatus']);
     Route::get("/load/{id}",[EventsController::class,'load']);
     Route::post("/update/{id}",[EventsController::class,'update']);
+    Route::post("/reschedule/{id}",[EventsController::class,'reschedule']);
 });
 
 Route::group(['prefix'=>'reservation'],function(){
@@ -54,4 +58,25 @@ Route::group(['prefix'=>'reservation'],function(){
     Route::get("/load/{id}",[ReservationController::class,'load']);
     Route::post("/update/{id}",[ReservationController::class,'update']);
 });
+
+Route::group(['prefix'=>'follow'],function(){
+    Route::post("/",[FollowsController::class,'create']);
+    Route::get("/load",[FollowsController::class,'load']);
+    Route::get("/load/{id}",[FollowsController::class,'load']);
+    Route::post("/update/{id}",[FollowsController::class,'update']);
+});
+Route::group(['prefix'=>'review'],function(){
+    Route::post("/",[ReviewsController::class,'create']);
+    Route::get("/load",[ReviewsController::class,'load']);
+    Route::get("/load/{id}",[ReviewsController::class,'load']);
+    Route::post("/update/{id}",[ReviewsController::class,'update']);
+});
+Route::group(['prefix'=>'saveforlater'],function(){
+    Route::post("/",[SavedforlaterController::class,'create']);
+    Route::get("/load",[SavedforlaterController::class,'load']);
+    Route::get("/load/{id}",[SavedforlaterController::class,'load']);
+    Route::post("/update/{id}",[SavedforlaterController::class,'update']);
+});
+Route::get('testmail',[UsersController::class,'testMail']);
+Route::post('upload/images',[EventsController::class,'upload']);
 Route::post('upload/images',[EventsController::class,'upload']);

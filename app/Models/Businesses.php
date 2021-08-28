@@ -15,6 +15,7 @@ class Businesses extends Model
         'tin',
         'contact_number',
         'address',
+        'gps_location',
         'status',
         'password',
         'created_at',

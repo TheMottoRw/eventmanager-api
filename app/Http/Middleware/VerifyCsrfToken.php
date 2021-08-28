@@ -21,9 +21,16 @@ class VerifyCsrfToken extends Middleware
         '/business/update/*',
         '/events/',
         '/events/update/*',
+        '/events/reschedule/*',
         '/events/status/*',
         '/reservation/',
         '/reservation/update/*',
+        '/follow/',
+        '/follow/update/*',
         '/upload/images',
+        '/review/',
+        '/review/update/*',
+        '/saveforlater/',
+        '/saveforlater/*',
     ];
 }
