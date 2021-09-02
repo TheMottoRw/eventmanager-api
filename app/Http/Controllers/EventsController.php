@@ -20,10 +20,13 @@ class EventsController extends Controller
         $event = new Events();
 
         file_put_contents("data", json_encode($request->input()));
+        $image1="";$image2="";$image3="";
+        if($request->file1!=null && $request->file2!=null && $request->file3!=null){
         $images = $this->upload($request->file1, $request->file2, $request->file3);
         $image1 = $appUrl . $images[0];
         $image2 = $appUrl . $images[1];
         $image3 = $appUrl . $images[2];
+        }
 //        return $request->event_name;
         $event->business_id = $request->business_id;
         $event->event_name = $request->event_name;
@@ -157,6 +160,27 @@ class EventsController extends Controller
 
         //parent::connect();
         return [$image1, $image2, $image3];
+    }
+    public function sendFollowersNotifications(Request $request){
+        $mail = new MailController();
+        $businessId = $request->business_id;
+        $businessInfo = Businesses::find($businessId);
+//        return response()->json([$businessInfo->name]);
+        if($businessId!=null){
+            $subject = "Mail updates from ".$businessInfo->name;
+            $message = $request->message;
+            //loads all followers
+            $followersObj = new FollowsController();
+            $followers = $followersObj->loadArr($request);
+//            $followers = json_decode($followers['data'],TRUE);
+            foreach($followers as $follower){
+                if($follower->follower_email && $follower->follower_name){
+                    $mail->sendMail($follower->follower_name,"mnzroger@gmail.com",$subject,$message);
+                }
+            }
+            return response()->json(['status'=>'ok','message'=>"Notification broadcast sent successful"]);
+        }
+        return response()->json(['status'=>'fail','message'=>"Can't broadcast notification,something went wrong"]);
     }
 
 }

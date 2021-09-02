@@ -77,6 +77,8 @@ class UsersController extends Controller
             return response()->json(['status'=>'fail','data'=>[$users->find($id)]]);
 
     }
+
+
     public function login(Request $request){
         $this->defaultUser();
        $user = Users::where("phone",$request->phone)->get();
@@ -104,7 +106,8 @@ class UsersController extends Controller
         $email = $request->email;
         $name = $request->name;
         $mail = new MailController();
-        $subject = "Event management account creation notification";
+        $subject = "Event managem
+        ent account creation notification";
         $message = "Thank you for creating account on our platform,you will use it to signin enjoy all the events on our platform.<br>";
 //        echo $message;
         $resp = $mail->sendMail($name,$email,$subject,$message);

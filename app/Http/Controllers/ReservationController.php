@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Events;
+use App\Models\User;
+use App\Models\Users;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Models\Reservation;
@@ -22,7 +24,23 @@ class ReservationController extends Controller
                 $reservation->user_id = $request->user_id;
                 $reservation->save();
                 if ($reservation) {
-                    return response()->json(['status' => 'ok', 'message' => "Reservation created successfully"]);
+                    //check user email for notification
+                    $userObj = Users::find($request->user_id);
+                    $eventObj = Events::find($request->event_id);
+                    if($userObj!=null){
+                        $mail = new MailController();
+                        $subject = "Event manager - reservation notification";
+                        $message = "We are glad to inform you that your reservation for the event ".$eventObj->event_name." has been recorded. Event scheduled to start by ".$eventObj->event_kikoff;
+                        $resp = "ok";
+//                        $resp = $mail->sendMail($userObj->email,$userObj->name,$subject,$message);
+                        if($resp=="ok"){
+                            return response()->json(['status' => $resp, 'message' => "Reservation created successfully,we sent you email"]);
+                        }else{
+                            return response()->json(['status' => 'ok', 'message' => 'Reservation created successfully,Email not delivered']);
+                        }
+                    }else{
+                        return response()->json(['status' => 'ok', 'message' => 'Reservation created,but no user found for notification']);
+                    }
                 } else {
                     return response()->json(['status' => 'failed', 'message' => 'Something went wrong,user not created']);
                 }

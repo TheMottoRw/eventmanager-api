@@ -70,4 +70,13 @@ class SavedforlaterController extends Controller
         return count($followings);
     }
 
+    public function remove(Request $request, $id)
+    {
+        $watchlater = Savedforlater::find($id);
+        $watchlater->delete();
+        if ($watchlater)
+            return response()->json(['status' => 'ok','message'=>'Event removed from review later', 'data' => []]);
+        else
+            return response()->json(['status' => 'ok', 'message'=>'Failed to remove event from review later,something went wrong','data' => [$watchlater->find($id)]]);
+    }
 }

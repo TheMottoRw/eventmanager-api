@@ -46,6 +46,23 @@ class FollowsController extends Controller
             return response()->json(['status' => 'ok', 'data' => Follows::find($id)]);
 
     }
+    public function loadArr(Request $request,$id = 0){
+        $data = Follows::join('businesses',"businesses.id","=","follows.business_id")
+            ->join("users","users.id",'=',"follows.user_id")
+            ->selectRaw("follows.*,users.name as follower_name,users.email as follower_email,users.phone as follower_phone,businesses.name as business_name,businesses.name as business_contact_number,businesses.business_type");
+
+        if($request->business_id){
+            return $data->where('follows.business_id',$request->business_id)->get();
+        }
+        if($request->user_id){
+            return $data->where('follows.user_id',$request->user_id)->get();
+        }
+        if ($id == 0)
+            return $data->get();
+        else
+            return Follows::find($id);
+
+    }
 
     public function update(Request $request, $id)
     {
@@ -57,6 +74,17 @@ class FollowsController extends Controller
             return response()->json(['status' => 'ok', 'data' => $users->findAll()]);
         else
             return response()->json(['status' => 'ok', 'data' => [$users->find($id)]]);
+
+    }
+    public function unfollow(Request $request, $id)
+    {
+        $users = Follows::find($id);
+//        return response()->json($users);
+        $users->delete();
+        if ($users)
+            return response()->json(['status' => 'ok','message'=>'Unfollowing event organizer done succesful', 'data' => []]);
+        else
+            return response()->json(['status' => 'ok', 'message'=>'Failed to unfollow event organizer,something went wrong','data' => [$users->find($id)]]);
 
     }
 

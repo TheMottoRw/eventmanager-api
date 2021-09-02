@@ -3,6 +3,7 @@
 use App\Http\Controllers\BusinessesController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\FollowsController;
 use App\Http\Controllers\ReviewsController;
@@ -50,6 +51,7 @@ Route::group(['prefix'=>'events'],function(){
     Route::get("/load/{id}",[EventsController::class,'load']);
     Route::post("/update/{id}",[EventsController::class,'update']);
     Route::post("/reschedule/{id}",[EventsController::class,'reschedule']);
+    Route::post("/notifications",[EventsController::class,'sendFollowersNotifications']);
 });
 
 Route::group(['prefix'=>'reservation'],function(){
@@ -61,6 +63,7 @@ Route::group(['prefix'=>'reservation'],function(){
 
 Route::group(['prefix'=>'follow'],function(){
     Route::post("/",[FollowsController::class,'create']);
+    Route::post("/unfollow/{id}",[FollowsController::class,'unfollow']);
     Route::get("/load",[FollowsController::class,'load']);
     Route::get("/load/{id}",[FollowsController::class,'load']);
     Route::post("/update/{id}",[FollowsController::class,'update']);
@@ -76,7 +79,16 @@ Route::group(['prefix'=>'saveforlater'],function(){
     Route::get("/load",[SavedforlaterController::class,'load']);
     Route::get("/load/{id}",[SavedforlaterController::class,'load']);
     Route::post("/update/{id}",[SavedforlaterController::class,'update']);
+    Route::post("/remove/{id}",[SavedforlaterController::class,'remove']);
 });
+
+Route::group(['prefix'=>'reset'],function(){
+    Route::post("/request",[ResetPasswordController::class,'create']);
+    Route::get("/verify",[ResetPasswordController::class,'verifyCode']);
+    Route::get("/password",[ResetPasswordController::class,'resetPassword']);
+  });
+Route::get('reset/request',[ResetPasswordController::class,'create']);
+Route::get('reset/verify',[ResetPasswordController::class,'verifyCode']);
+Route::get('reset/password',[ResetPasswordController::class,'resetPassword']);
 Route::get('testmail',[UsersController::class,'testMail']);
-Route::post('upload/images',[EventsController::class,'upload']);
 Route::post('upload/images',[EventsController::class,'upload']);

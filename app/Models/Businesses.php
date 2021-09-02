@@ -13,6 +13,7 @@ class Businesses extends Model
         'name',
         'business_type',
         'tin',
+        'email',
         'contact_number',
         'address',
         'gps_location',
