@@ -20,6 +20,7 @@ class BusinessesController extends Controller
         $business->contact_number = $request->phone;
         $business->address = $request->address;
         $business->status = 'Pending';
+        $business->gps_location = $request->gps_location;
         $business->password = Hash::make($request->password);
         $business->save();
         if($business){
