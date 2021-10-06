@@ -35,5 +35,8 @@ class VerifyCsrfToken extends Middleware
         '/saveforlater/',
         '/saveforlater/*',
         '/saveforlater/remove/*',
+        '/reset/request',
+        '/reset/verify',
+        '/reset/password/*',
     ];
 }

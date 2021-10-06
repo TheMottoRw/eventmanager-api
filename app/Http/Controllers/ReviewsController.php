@@ -37,10 +37,10 @@ class ReviewsController extends Controller
             return response()->json(['status'=>'ok','data'=>$data->where('evenements.business_id',$request->business_id)->get()]);
         }
         if($request->user_id){
-            return response()->json(['status'=>'ok','data'=>$data->where('review.user_id',$request->user_id)->get()]);
+            return response()->json(['status'=>'ok','data'=>$data->where('reviews.user_id',$request->user_id)->get()]);
         }
         if($request->event_id){
-            return response()->json(['status'=>'ok','data'=>$data->where('review.event_id',$request->event_id)->get()]);
+            return response()->json(['status'=>'ok','data'=>$data->where('reviews.event_id',$request->event_id)->get()]);
         }
         if ($id == 0)
             return response()->json(['status' => 'ok', 'data' => $data->get()]);

@@ -84,8 +84,8 @@ Route::group(['prefix'=>'saveforlater'],function(){
 
 Route::group(['prefix'=>'reset'],function(){
     Route::post("/request",[ResetPasswordController::class,'create']);
-    Route::get("/verify",[ResetPasswordController::class,'verifyCode']);
-    Route::get("/password",[ResetPasswordController::class,'resetPassword']);
+    Route::post("/verify",[ResetPasswordController::class,'verifyCode']);
+    Route::post("/password/{id}",[ResetPasswordController::class,'resetPassword']);
   });
 Route::get('reset/request',[ResetPasswordController::class,'create']);
 Route::get('reset/verify',[ResetPasswordController::class,'verifyCode']);

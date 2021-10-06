@@ -49,7 +49,7 @@ class ResetPasswordController extends Controller
                     $message = "Your reset password request verification code ".$generatedCode;
                     $mail = new MailController();
                     $mail->sendMail($name, $email, $subject, $message);
-                    return response()->json(['status' => 'ok', 'data' => []]);
+                    return response()->json(['status' => 'ok', 'data' => [],"id"=>$referenceId,"type"=>$referenceType]);
                 }else{
                     return response()->json(['status'=>'fail','data'=>[],'message'=>'Name not found']);
                 }
@@ -58,27 +58,32 @@ class ResetPasswordController extends Controller
             }
         }
             else
-                return response()->json(['status'=>'fail','data'=>[],'message'=>'ID and Name are empty']);
+                return response()->json(['status'=>'fail','data'=>[],'message'=>'Email does not exist in our database
+                ']);
     }
     public function generateCode($ref){
         return strtoupper(substr($ref,0,2)).rand(1000,9999);
     }
     public function verifyCode(Request $request){
+        $type = "";$codeInfo = [0];
         if(substr($request->code,0,2) == "ST"){
+            $type="Standard";
             $codeInfo = ResetPassword::join("users","users.id","=","reset_code.reference_id")
                         ->selectRaw("reset_code.reference_id,reset_code.reference_type,reset_code.code,reset_code.expire_date")
-                        ->where('reset_code.code',"'".$request->code."'")->where("reset_code.expire_date",">=","'".date("Y-m-d H:i")."'")
+                ->where("reset_code.reference_id",$request->reference_id)->where("reset_code.reference_type",$request->reference_type)
+                ->where('reset_code.code',$request->code)->where("reset_code.expire_date",">=","'".date("Y-m-d H:i")."'")
                             ->get();
         }else{
+            $type="Business";
             $codeInfo = DB::table("reset_code")->join("businesses","businesses.id","=","reset_code.reference_id")
-                ->selectRaw("reset_code.reference_id,reset_code.reference_type,reset_code.code,reset_code.expire_date")
+                ->select("reset_code.reference_id,reset_code.reference_type,reset_code.code,reset_code.expire_date")
                 ->where('reset_code.code',"'".$request->code."'")->where("reset_code.expire_date",">=","'".date("Y-m-d H:i")."'")
                 ->get();
         }
 
         return response()->json($codeInfo);
         if(count($codeInfo)>0){
-            return response()->json(['status'=>'ok','id'=>$codeInfo[0]->user_id,'type'=>(substr($request->code,0,2)=="ST"?"Standard":"Business")]);
+            return response()->json(['status'=>'ok','id'=>$codeInfo[0]->user_id,'type'=>$type]);
         }else{
             return response()->json(['status'=>'fail']);
         }

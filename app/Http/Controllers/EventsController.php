@@ -21,7 +21,7 @@ class EventsController extends Controller
 
         file_put_contents("data", json_encode($request->input()));
         $image1="";$image2="";$image3="";
-        if($request->file1!=null && $request->file2!=null && $request->file3!=null){
+        if($request->file1!="" && $request->file2!="" && $request->file3!=""){
         $images = $this->upload($request->file1, $request->file2, $request->file3);
         $image1 = $appUrl . $images[0];
         $image2 = $appUrl . $images[1];
@@ -49,11 +49,12 @@ class EventsController extends Controller
 
     public function load(Request $request, $id = 0)
     {
+//        return response()->json([$request->business_id]);
         if ($request->business_id) {
             $data = DB::table('evenements')
                 ->join("businesses", "evenements.business_id", "=", "businesses.id")
                 ->leftJoin("reservation", "reservation.event_id", "=", "evenements.id")
-                ->whereRaw('evenements.business_id', $request->business_id)
+                ->where('evenements.business_id', $request->business_id)
                 ->selectRaw("evenements.*,(evenements.reservation_allowed - count(reservation.id)) as available_seat,count(reservation.id) as reserved_seat,businesses.name as business_name,businesses.business_type")
                 ->orderBy("evenements.event_kikoff",'desc')
                 ->groupBy("evenements.id")
