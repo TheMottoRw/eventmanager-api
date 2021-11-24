@@ -92,3 +92,4 @@ Route::get('reset/verify',[ResetPasswordController::class,'verifyCode']);
 Route::get('reset/password',[ResetPasswordController::class,'resetPassword']);
 Route::get('testmail',[UsersController::class,'testMail']);
 Route::post('upload/images',[EventsController::class,'upload']);
+Route::get('user/profile',[UsersController::class,'profile']);

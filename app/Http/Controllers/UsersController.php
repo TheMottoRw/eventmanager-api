@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Businesses;
+use App\Models\Events;
+use App\Models\Follows;
+use App\Models\Reservation;
 use Illuminate\Http\Request;
 use App\Models\Users;
 use Illuminate\Support\Facades\Crypt;
@@ -106,12 +109,28 @@ class UsersController extends Controller
         $email = $request->email;
         $name = $request->name;
         $mail = new MailController();
-        $subject = "Event managem
-        ent account creation notification";
+        $subject = "Event management account creation notification";
         $message = "Thank you for creating account on our platform,you will use it to signin enjoy all the events on our platform.<br>";
 //        echo $message;
         $resp = $mail->sendMail($name,$email,$subject,$message);
         echo $resp;
 //        $mail->sendMail("Manzi Roger",$email,$subject,$message);
+    }
+    public function profile(Request $request){
+        $category = $request->category;
+        $id = $request->id;
+        $response = array("status"=>"ok","data"=>array());
+        if($category == "Business"){
+            $followers = Follows::where("business_id",$id)->get();
+            $events = Events::where("business_id",$id)->whereRaw("status!='cancelled'")->get();
+            $response['data']['followers'] = count($followers);
+            $response['data']['events'] = count($events);
+        }else{
+            $events = Reservation::where("user_id",$id)->get();
+            $following = Follows::where("user_id",$id)->get();
+            $response['data']['following'] = count($following);
+            $response['data']['events'] = count($events);
+        }
+        return response()->json($response);
     }
 }
