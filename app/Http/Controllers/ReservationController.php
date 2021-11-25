@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Events;
 use App\Models\User;
 use App\Models\Users;
+//use Barryvdh\DomPDF\PDF;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Models\Reservation;
 use Illuminate\Support\Facades\Crypt;
-
+use PDF;
 class ReservationController extends Controller
 {
     //
@@ -100,6 +101,22 @@ class ReservationController extends Controller
         $reservation_allowed = Events::find($eventid)->reservation_allowed;
         $reserved = Reservation::where("event_id", $eventid)->where("user_id", $userId)->get();
         return count($reserved) == 0 ? true : false;
+    }
+    public function exportData(Request $request){
+        $data = Reservation::join('businesses',"businesses.id","=","reservation.business_id")
+            ->join("evenements","evenements.id",'=',"reservation.event_id")
+            ->join("users","users.id",'=',"reservation.user_id")
+            ->selectRaw("reservation.*,users.name as reserver_name,users.email as reserver_email,users.phone as reserver_phone,evenements.event_name,evenements.event_type,evenements.event_kikoff,evenements.event_close,evenements.brief_description,evenements.images,businesses.name as business_name,businesses.business_type,'' as available_seat")
+            ->where('reservation.event_id',$request->event_id)->get();
+        view()->share('reservation',$data);
+//        $obj = new PDF();
+
+//        $view = view('create_quote', compact('data'))->render();
+//        $pdf = PDF::loadHTML($view)->setPaper('a4', 'potrait')->setWarnings(false)->save('myfile.pdf');
+
+        $pdf = PDF::loadView('reservation_pdf',$data);
+//        return $pdf->download("Reservation report.pdf");
+        return $pdf->download(count($data)>0?"Reservation report of ".$data[0]['event_name'].".pdf":"Reservation report.pdf");
     }
 
 }

@@ -59,6 +59,8 @@ Route::group(['prefix'=>'reservation'],function(){
     Route::get("/load",[ReservationController::class,'load']);
     Route::get("/load/{id}",[ReservationController::class,'load']);
     Route::post("/update/{id}",[ReservationController::class,'update']);
+    Route::get('/report', [ReservationController::class, 'exportData']);
+
 });
 
 Route::group(['prefix'=>'follow'],function(){
