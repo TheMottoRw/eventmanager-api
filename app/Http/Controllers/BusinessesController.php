@@ -18,6 +18,7 @@ class BusinessesController extends Controller
         $business->business_type = $request->business_type;
         $business->tin = $request->tin;
         $business->contact_number = $request->phone;
+        $business->email = $request->email;
         $business->address = $request->address;
         $business->status = 'Pending';
         $business->gps_location = $request->gps_location;

@@ -43,15 +43,17 @@ class ResetPasswordController extends Controller
             $resetPwd->code = $generatedCode;
             $resetPwd->expire_date = $expireDate;
             $resetPwd->save();
+            echo json_encode(['status' => 'ok', 'data' => [],"id"=>$referenceId,"type"=>$referenceType]);
+
             if($resetPwd){
                 if($name!="") {
                     $subject = "Reset password code";
                     $message = "Your reset password request verification code ".$generatedCode;
                     $mail = new MailController();
                     $mail->sendMail($name, $email, $subject, $message);
-                    return response()->json(['status' => 'ok', 'data' => [],"id"=>$referenceId,"type"=>$referenceType]);
+//                    return response()->json(['status' => 'ok', 'data' => [],"id"=>$referenceId,"type"=>$referenceType]);
                 }else{
-                    return response()->json(['status'=>'fail','data'=>[],'message'=>'Name not found']);
+                    return response()->json(['status'=>'ok','data'=>[],'message'=>'Name not found']);
                 }
             }else{
                 return response()->json(['status'=>'fail','data'=>[],'message'=>'Code registration error '.$referenceId." - ".$referenceType."-"]);
@@ -81,9 +83,8 @@ class ResetPasswordController extends Controller
                 ->get();
         }
 
-        return response()->json($codeInfo);
         if(count($codeInfo)>0){
-            return response()->json(['status'=>'ok','id'=>$codeInfo[0]->user_id,'type'=>$type]);
+            return response()->json(['status'=>'ok','id'=>$codeInfo[0]->reference_id,'type'=>$codeInfo[0]->reference_type]);
         }else{
             return response()->json(['status'=>'fail']);
         }

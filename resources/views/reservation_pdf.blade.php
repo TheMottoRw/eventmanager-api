@@ -54,14 +54,20 @@
     </tr>
     </thead>
     <tbody>
-    @foreach ($reservation as $data)
-        <tr>
-            <td>{{ $data->reserver_name }}</td>
-            <td>{{ $data->reserver_email }}</td>
-            <td>{{ $data->reserver_phone }}</td>
-            <td style="font-size:12px">{{ $data->created_at }}</td>
-        </tr>
-    @endforeach
+    @if(count($reservation) >0)
+        @foreach ($reservation as $data)
+            <tr>
+                <td>{{ $data->reserver_name }}</td>
+                <td>{{ $data->reserver_email }}</td>
+                <td>{{ $data->reserver_phone }}</td>
+                <td style="font-size:12px">{{ $data->created_at }}</td>
+            </tr>
+        @endforeach
+    @else
+    <tr>
+        <td colspan="4"><center>No reservation for the events</center></td>
+    </tr>
+    @endif
     </tbody>
 </table>
 <div id="footer">
